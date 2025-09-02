@@ -44,3 +44,28 @@ class Feedback(BaseModel):
     log_type: Literal["feedback"] = "feedback"
     service_name: Literal["my-content-pipeline"] = "my-content-pipeline"
     user_id: str = ""
+
+
+class Progress(BaseModel):
+    """Represents a progress update."""
+
+    current_step: int
+    total_steps: int
+    message: str
+
+
+class VideoAsset(BaseModel):
+    """Represents a single video asset."""
+    title: str
+    description: str
+    hashtags: str
+    image_prompt: str
+    transcript: str
+    video_url: str
+    image_url: str
+    audio_url: str
+
+
+class VideoAssetsResponse(BaseModel):
+    """Represents a list of video assets."""
+    videos: list[VideoAsset]

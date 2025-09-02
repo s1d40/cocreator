@@ -1,0 +1,21 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cocreator-backend
+spec:
+  template:
+    spec:
+      containers:
+      - image: gcr.io/cocreator-d0nbh/cocreator-backend
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "cocreator-d0nbh"
+        - name: GOOGLE_CLOUD_LOCATION
+          value: "us-central1"
+        - name: GOOGLE_GENAI_USE_VERTEXAI
+          value: "True"
+        - name: ALLOW_ORIGINS
+          value: "*"
+      serviceAccountName: 835632229930-compute@developer.gserviceaccount.com

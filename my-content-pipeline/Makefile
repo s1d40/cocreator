@@ -32,7 +32,7 @@ backend:
 
 # Launch local development server with hot-reload
 local-backend:
-	uv run uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload
+	set -a; source .env; set +a; uv run uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload
 
 # Set up development environment resources using Terraform
 setup-dev-env:

@@ -14,12 +14,19 @@
 
 import os
 from dotenv import load_dotenv
+import google.auth
 
 # Load environment variables
 load_dotenv()
 
 # Set default environment variables for Vertex AI
-os.environ.setdefault("GOOGLE_CLOUD_PROJECT", os.getenv("GOOGLE_CLOUD_PROJECT"))
+try:
+    _, project_id = google.auth.default()
+    os.environ.setdefault("GOOGLE_CLOUD_PROJECT", project_id)
+except (google.auth.exceptions.DefaultCredentialsError, FileNotFoundError):
+    # Use a default project ID or raise an error if credentials are not found
+    os.environ.setdefault("GOOGLE_CLOUD_PROJECT", "your-gcp-project-id")
+
 os.environ.setdefault("GOOGLE_CLOUD_LOCATION", os.getenv("GOOGLE_CLOUD_LOCATION", "global"))
 os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "True"))
 

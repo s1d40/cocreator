@@ -15,6 +15,7 @@ venv/
 generated_images/
 generated_audio/
 /tmp/generated_videos/
+sessions/
 *.wav
 *.mp3
 *.mp4

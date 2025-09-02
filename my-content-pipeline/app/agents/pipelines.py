@@ -12,35 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.adk.agents import SequentialAgent
-from .specialized import (
-    research_agent,
-    url_extraction_agent,
-    analysis_agent,
-    outline_generator_agent,
+from .custom import LoggingSequentialAgent
+from .agents import (
+    planning_agent,
     writer_agent,
     multimedia_producer_agent,
-    video_producer_agent,
 )
+from .reporting import reporting_agent
 
-strategist_agent = SequentialAgent(
-   name="strategist_agent",
-   description="Orchestrates research, URL extraction, analysis, and outline generation.",
-   sub_agents=[
-       research_agent,
-       url_extraction_agent,
-       analysis_agent,
-       outline_generator_agent,
-   ]
-)
-
-content_creation_pipeline = SequentialAgent(
+content_creation_pipeline = LoggingSequentialAgent(
    name="content_creation_pipeline",
    description="A full pipeline that takes a topic, researches it, and generates a complete video with a script, images, and voiceover. Use this tool when a user has confirmed a clear and specific request.",
    sub_agents=[
-       strategist_agent,
+       planning_agent,
        writer_agent,
        multimedia_producer_agent,
-       video_producer_agent,
+       reporting_agent,
    ]
 )

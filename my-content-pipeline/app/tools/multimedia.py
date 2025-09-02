@@ -28,10 +28,13 @@ async def generate_image(prompt: str, tool_context: ToolContext) -> dict[str, An
         number_of_images=1,
         aspect_ratio="16:9",
     )
+    if not images:
+        logger.error("Image generation failed, no images were returned.")
+        return {"status": "error", "message": "Image generation failed."}
     image_bytes = images[0]._image_bytes
     image_id = str(uuid.uuid4())
     image_part = Part.from_data(data=image_bytes, mime_type="image/png")
-    output_dir = "generated_images"
+    output_dir = "/tmp/cocreator_media"
     os.makedirs(output_dir, exist_ok=True)
     local_file_path = os.path.join(output_dir, f"image_{image_id}.png")
     with open(local_file_path, "wb") as f:
@@ -39,10 +42,7 @@ async def generate_image(prompt: str, tool_context: ToolContext) -> dict[str, An
     logger.info(f"Image saved locally to: {local_file_path}")
     image_url = await tool_context.save_artifact(f"image_{image_id}.png", image_part)
     logger.info("Generated image (artifact service): %s", image_url)
-    if image_url == 0:
-        return {"status": "success", "image_url": f"Image generated and saved locally to: {local_file_path} (In-memory ID: image_{image_id}.png)"}
-    else:
-        return {"status": "success", "image_url": image_url}
+    return {"status": "success", "image_path": local_file_path}
 
 async def synthesize_voiceover(text: str, voice_name: str = "en-US-Neural2-D", tool_context: ToolContext = None) -> dict[str, Any]:
     """
@@ -58,7 +58,7 @@ async def synthesize_voiceover(text: str, voice_name: str = "en-US-Neural2-D", t
         text_chunks = [text[i:i+4500] for i in range(0, len(text), 4500)]
         audio_segments = []
         
-        output_dir = "generated_audio"
+        output_dir = "/tmp/cocreator_media"
         os.makedirs(output_dir, exist_ok=True)
 
         for i, chunk in enumerate(text_chunks):
@@ -99,15 +99,7 @@ async def synthesize_voiceover(text: str, voice_name: str = "en-US-Neural2-D", t
     audio_url = await tool_context.save_artifact(f"audio_{audio_id}.mp3", audio_part)
     logger.info("Generated audio artifact: %s", audio_url)
     
-    response = {
-        "status": "success",
-        "transcript": text,
-        "audio_url": f"Audio generated and saved locally to: {local_file_path} (In-memory ID: audio_{audio_id}.mp3)"
-    }
-    if audio_url != 0:
-        response["audio_url"] = audio_url
-        
-    return response
+    return {"status": "success", "transcript": text, "audio_path": local_file_path}
 
 async def synthesize_voiceover_with_random_voice(text: str, tool_context: ToolContext) -> dict[str, Any]:
     """
@@ -123,7 +115,7 @@ async def create_video_from_assets(image_paths: list[str], audio_paths: list[str
     """
     logger.info("Creating synchronized video from assets.")
     try:
-        temp_dir = "/tmp/generated_videos"
+        temp_dir = "/tmp/cocreator_media"
         os.makedirs(temp_dir, exist_ok=True)
         video_filename = f"{uuid.uuid4()}.mp4"
         video_path = os.path.join(temp_dir, video_filename)
@@ -138,13 +130,13 @@ async def create_video_from_assets(image_paths: list[str], audio_paths: list[str
 
         video = concatenate_videoclips(clips, method="compose")
         video.audio = final_audio
-        video.write_videofile(video_path, fps=24)
+        video.write_videofile(video_path, fps=24, preset="ultrafast", threads=4)
 
         with open(video_path, "rb") as f:
             video_bytes = f.read()
         video_url = await tool_context.save_artifact(f"video_{uuid.uuid4()}.mp4", Part.from_data(data=video_bytes, mime_type="video/mp4"))
         logger.info("Generated video: %s", video_url)
-        return {"status": "success", "video_url": video_url}
+        return {"status": "success", "video_path": video_path}
     except Exception as e:
         logger.error("Error creating video: %s", e)
         return {"status": "error", "message": f"Error creating video: {e}"}
