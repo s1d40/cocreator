@@ -1,7 +1,7 @@
 {
   "apphosting": {
     "backendId": "sfaisolutions-frontend",
-    "rootDir": "frontend",
+    "rootDir": "/",
     "ignore": [
       "node_modules",
       ".git",
