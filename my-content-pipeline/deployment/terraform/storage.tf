@@ -46,5 +46,23 @@ resource "google_artifact_registry_repository" "repo-artifacts-genai" {
   depends_on    = [resource.google_project_service.cicd_services, resource.google_project_service.deploy_project_services]
 }
 
+resource "google_storage_bucket" "file_uploads_bucket" {
+  for_each                    = local.deploy_project_ids
+  name                        = "${each.value}-${var.project_name}-file-uploads"
+  location                    = var.region
+  project                     = each.value
+  uniform_bucket_level_access = true
+  force_destroy               = true
+
+  cors {
+    origin          = ["*"]
+    method          = ["PUT"]
+    response_header = ["Content-Type"]
+    max_age_seconds = 3600
+  }
+
+  depends_on = [resource.google_project_service.deploy_project_services]
+}
+
 
 

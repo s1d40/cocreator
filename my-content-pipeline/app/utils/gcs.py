@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import logging
-
+import datetime
 import google.cloud.storage as storage
 from google.api_core import exceptions
 
@@ -40,3 +40,26 @@ def create_bucket_if_not_exists(bucket_name: str, project: str, location: str) -
             project=project,
         )
         logging.info(f"Created bucket {bucket.name} in {bucket.location}")
+
+def generate_upload_url(bucket_name: str, file_name: str, content_type: str) -> str:
+    """Generates a signed URL for uploading a file to GCS.
+
+    Args:
+        bucket_name: Name of the GCS bucket.
+        file_name: Name of the file to upload.
+        content_type: MIME type of the file.
+
+    Returns:
+        The signed URL for uploading the file.
+    """
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name.replace("gs://", ""))
+    blob = bucket.blob(file_name)
+
+    url = blob.generate_signed_url(
+        version="v4",
+        expiration=datetime.timedelta(minutes=15),
+        method="PUT",
+        content_type=content_type,
+    )
+    return url

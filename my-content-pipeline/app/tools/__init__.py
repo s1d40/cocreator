@@ -1,4 +1,5 @@
 from .web import extract_content_from_url
+from .translation import translate_text
 from .analysis import analyze_themes, generate_social_media_post
 from .multimedia import (
     generate_image,
@@ -17,6 +18,7 @@ from .sessions import (
 
 __all__ = [
     "extract_content_from_url",
+    "translate_text",
     "analyze_themes",
     "generate_image",
     "synthesize_voiceover",

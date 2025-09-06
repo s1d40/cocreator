@@ -36,6 +36,7 @@ def analyze_themes(text: str, num_topics: int = 5, num_words: int = 5) -> str:
 
 import asyncio
 import json
+from app.config import DEFAULT_LLM_MODEL
 from google.adk.agents import LlmAgent
 
 async def generate_social_media_post(text: str) -> dict:
@@ -50,7 +51,7 @@ async def generate_social_media_post(text: str) -> dict:
     """
     agent = LlmAgent(
         name="social_media_post_generator",
-        model="gemini-2.5-flash",
+        model=DEFAULT_LLM_MODEL,
         instruction=f"""Generate a social media post from the following text: "{text}".
         Your response must be a single, raw JSON object with the keys "title", "description", and "hashtags".
         The title should be catchy and under 60 characters.
@@ -80,5 +81,3 @@ async def generate_social_media_post(text: str) -> dict:
 
     except Exception as e:
         return {"status": "error", "message": f"Failed to generate or parse social media post: {e}"}
-
-

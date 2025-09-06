@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocreator: Production & Monetization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Application Structure Plan: A single-page application (SPA) that presents the production and monetization plan in a logical, narrative flow. The structure is based on the provided document's sections: a high-level overview, a detailed breakdown of authentication, a monetization strategy, an architectural overview, and a phased release plan. This structure was chosen because it mirrors the original document's logical progression, making the interactive version a familiar and easy-to-follow experience. Users can navigate sequentially or jump to sections. -->
+    <!-- Visualization & Content Choices: 1. Authentication Flow -> Goal: Organize/Explain -> Viz/Method: Flowchart using styled HTML/CSS divs and flexbox -> Justification: Clearly illustrates the step-by-step process of user authentication. 2. Monetization Tiers -> Goal: Compare -> Viz/Method: Comparison table using HTML -> Justification: The most effective way to present tiered pricing models and their feature differences. 3. Firestore Collections -> Goal: Organize/Explain -> Viz/Method: Diagram of data structure using styled HTML/CSS cards -> Justification: Visually represents the database schema, showing the relationships between user, session, and subscription data. 4. Release Phases -> Goal: Organize -> Viz/Method: Process flow with styled HTML/CSS cards -> Justification: Clearly outlines the phased release strategy from beta to public launch. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F4F6;
+        }
+        .flow-line {
+            height: 2px;
+            background-color: #60A5FA;
+            width: 100%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <main class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center py-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Cocreator Application: Production & Monetization</h1>
+            <p class="mt-4 text-xl text-gray-600 font-semibold">From Prototype to a Monetized Service</p>
+            <p class="mt-2 max-w-2xl mx-auto text-gray-500">A plan to transition the Cocreator application to a secure, scalable, and revenue-generating product.</p>
+        </header>
+
+        <section id="overview" class="mb-16 bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-4 text-center">Overview</h2>
+            <p class="text-gray-600 text-center max-w-3xl mx-auto">This document outlines the strategy and steps required to take the Cocreator application from its current prototype stage to a production-ready, monetized service. The plan leverages our existing technology stack—Firebase Hosting for the frontend and Google Cloud Run for the backend—to ensure a scalable and maintainable architecture. The primary goal is to launch the Cocreator Studio as a beta product, secured by a robust authentication system and integrated with a payment gateway to handle user subscriptions.</p>
+        </section>
+
+        <section id="authentication" class="mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="text-left md:order-1">
+                    <h2 class="text-3xl font-bold mb-4">Authentication Strategy</h2>
+                    <p class="text-gray-600 mb-4">A secure and user-friendly authentication system is the foundation of a production application. We will use **Firebase Authentication** for its seamless integration and security features.</p>
+                    <p class="text-gray-600 mb-4">The core flow involves the frontend handling user sign-in and receiving a **JSON Web Token (JWT)** from Firebase. This token will then be included in every API request to our backend on Cloud Run.</p>
+                    <p class="text-gray-600">The backend will use the **Firebase Admin SDK** to verify the JWT for every request, ensuring only authenticated users can access the service and allowing us to identify and track them by their unique `uid`.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center space-y-6 md:order-2">
+                    <h3 class="text-xl font-bold mb-4">User Authentication Flow</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="p-4 bg-blue-100 rounded-lg shadow-sm text-center font-semibold">Frontend</div>
+                        <div class="flow-line w-12 my-2"></div>
+                        <p class="text-xs text-gray-500">User Login/Signup</p>
+                        <div class="flow-line w-12 my-2 rotate-90 md:rotate-0"></div>
+                        <div class="p-4 bg-orange-100 rounded-lg shadow-sm text-center font-semibold">Firebase Auth</div>
+                        <div class="flow-line w-12 my-2 rotate-90 md:rotate-0"></div>
+                        <p class="text-xs text-gray-500">Receives JWT Token</p>
+                        <div class="flow-line w-12 my-2"></div>
+                        <div class="p-4 bg-blue-100 rounded-lg shadow-sm text-center font-semibold">Frontend</div>
+                        <div class="flow-line w-12 my-2 rotate-90 md:rotate-0"></div>
+                        <p class="text-xs text-gray-500">Sends request with JWT</p>
+                        <div class="flow-line w-12 my-2 rotate-90 md:rotate-0"></div>
+                        <div class="p-4 bg-green-100 rounded-lg shadow-sm text-center font-semibold">Cloud Run Backend</div>
+                        <div class="flow-line w-12 my-2 rotate-90 md:rotate-0"></div>
+                        <p class="text-xs text-gray-500">Verifies JWT</p>
+                        <div class="p-4 bg-green-100 rounded-lg shadow-sm text-center font-semibold mt-2">Access Granted</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="monetization" class="mb-16 bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-4 text-center">Monetization Strategy</h2>
+            <p class="text-gray-600 text-center max-w-3xl mx-auto mb-8">We will implement a tiered subscription model to monetize the application, using **Stripe** as the industry-standard payment gateway for secure processing and robust developer tools.</p>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-gray-50 rounded-lg shadow-inner">
+                    <thead>
+                        <tr class="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
+                            <th class="py-3 px-6 text-left">Feature</th>
+                            <th class="py-3 px-6 text-center">Free</th>
+                            <th class="py-3 px-6 text-center">Pro</th>
+                            <th class="py-3 px-6 text-center">Business</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-600 text-sm font-light">
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left whitespace-nowrap">Videos/month</td>
+                            <td class="py-3 px-6 text-center">5</td>
+                            <td class="py-3 px-6 text-center">50</td>
+                            <td class="py-3 px-6 text-center">Unlimited</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left">Voiceovers</td>
+                            <td class="py-3 px-6 text-center">Standard</td>
+                            <td class="py-3 px-6 text-center">Premium</td>
+                            <td class="py-3 px-6 text-center">Premium</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left">Video Resolution</td>
+                            <td class="py-3 px-6 text-center">720p</td>
+                            <td class="py-3 px-6 text-center">1080p</td>
+                            <td class="py-3 px-6 text-center">4K</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="architecture" class="mb-16">
+            <h2 class="text-3xl font-bold mb-4 text-center">Backend and Database Architecture</h2>
+            <p class="text-gray-600 text-center max-w-3xl mx-auto mb-8">To support our authentication and subscription models, we will update our backend on Cloud Run and use **Firestore** as our primary database.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-bold mb-4 text-center">Updated Backend (Cloud Run)</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-600">
+                        <li>Middleware to verify Firebase JWTs on every request.</li>
+                        <li>Dedicated webhook endpoint to securely receive and verify Stripe payment events.</li>
+                        <li>Business logic updated to check user `uid`, subscription tier, and usage limits before executing tasks.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-bold mb-4 text-center">Updated Database (Firestore)</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="p-4 bg-purple-100 rounded-lg shadow-sm w-full text-center">
+                            <p class="font-bold text-lg">`users` Collection</p>
+                            <p class="text-sm mt-2">Document ID: `uid`</p>
+                            <ul class="text-xs text-gray-500 mt-1">
+                                <li>email: user@example.com</li>
+                                <li>stripeId: cus_...</li>
+                                <li>tier: "Pro"</li>
+                                <li>videosCreated: 15</li>
+                            </ul>
+                        </div>
+                        <div class="my-4 text-gray-400">is linked to</div>
+                        <div class="p-4 bg-purple-100 rounded-lg shadow-sm w-full text-center">
+                            <p class="font-bold text-lg">`sessions` Collection</p>
+                            <p class="text-sm mt-2">Document ID: `sessionId`</p>
+                            <ul class="text-xs text-gray-500 mt-1">
+                                <li>userId: `uid`</li>
+                                <li>data: {}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="release-plan" class="mb-16 bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-4 text-center">Phased Release Plan</h2>
+            <p class="text-gray-600 text-center max-w-3xl mx-auto mb-8">We will follow a phased approach to ensure a stable launch, starting with a closed beta and transitioning to a public release once feedback is incorporated.</p>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-6 md:space-y-0 md:space-x-6">
+                <div class="text-center">
+                    <p class="text-5xl mb-2">🚀</p>
+                    <h3 class="text-xl font-bold">Phase 1: Beta Launch</h3>
+                    <p class="text-gray-600 max-w-xs mx-auto mt-2">Gather user feedback, identify bugs, and validate the core value proposition. Payments will be in Stripe's "test mode."</p>
+                </div>
+                <div class="md:block hidden text-2xl text-blue-500 font-bold">&rarr;</div>
+                <div class="md:hidden block text-2xl text-blue-500 font-bold">&darr;</div>
+                <div class="text-center">
+                    <p class="text-5xl mb-2">📈</p>
+                    <h3 class="text-xl font-bold">Phase 2: Public Launch</h3>
+                    <p class="text-gray-600 max-w-xs mx-auto mt-2">A stable, monetized public release. Payments will be switched to "live mode" to begin accepting real transactions.</p>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="text-center py-10 border-t">
+            <h2 class="text-2xl font-bold">Next Steps Checklist</h2>
+            <p class="max-w-3xl mx-auto text-gray-600 mt-2">This plan provides a clear roadmap to take Cocreator from prototype to a commercial product. The next steps are focused on technical implementation to make this vision a reality.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                <div class="bg-gray-100 p-4 rounded-lg text-left">
+                    <p class="font-bold">Frontend</p>
+                    <ul class="text-sm text-gray-600 mt-1">
+                        <li>[ ] Integrate Firebase Auth</li>
+                        <li>[ ] Implement pricing UI</li>
+                        <li>[ ] Update API requests with JWTs</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg text-left">
+                    <p class="font-bold">Backend</p>
+                    <ul class="text-sm text-gray-600 mt-1">
+                        <li>[ ] Add JWT middleware</li>
+                        <li>[ ] Create Stripe webhook</li>
+                        <li>[ ] Update logic for `uid`</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg text-left">
+                    <p class="font-bold">Database</p>
+                    <ul class="text-sm text-gray-600 mt-1">
+                        <li>[ ] Implement `users` schema</li>
+                        <li>[ ] Update `sessions` collection</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg text-left">
+                    <p class="font-bold">Infrastructure</p>
+                    <ul class="text-sm text-gray-600 mt-1">
+                        <li>[ ] Setup dev/prod projects</li>
+                        <li>[ ] Configure Stripe for live mode</li>
+                        <li>[ ] Implement CI/CD</li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const flowElements = document.querySelectorAll('.flow-line, .p-4');
+            flowElements.forEach(el => {
+                el.addEventListener('mouseenter', () => el.classList.add('transition', 'transform', 'duration-300', 'scale-105'));
+                el.addEventListener('mouseleave', () => el.classList.remove('scale-105'));
+            });
+        });
+    </script>
+</body>
+</html>

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from app.config import DEFAULT_LLM_MODEL
 from google.adk.agents import LlmAgent
 from app.tools import (
     generate_image,
@@ -23,10 +24,11 @@ from app.tools import (
     move_artifact_to_session_folder,
     save_session_to_firestore,
     read_session_artifacts,
+    translate_text,
 )
 
 planning_agent = LlmAgent(
-    model="gemini-2.5-flash",
+    model=DEFAULT_LLM_MODEL,
     name="planning_agent",
     instruction='''You are an expert content strategist. Your task is to analyze the provided text and generate a structured content outline.
     The outline should include a title, a tone, and a list of sections with headings and key points.
@@ -36,7 +38,7 @@ planning_agent = LlmAgent(
 )
 
 writer_agent = LlmAgent(
-   model="gemini-2.5-flash",
+   model=DEFAULT_LLM_MODEL,
    name="writer_agent",
    instruction='''You are an expert content writer specializing in technology topics. Your task is to take a structured outline provided in the session state under the key 'content_outline' and write a full, engaging, and technically accurate article based on it. Adhere strictly to the professional and informative tone specified in the outline. Your final output must be a single string of well-formatted text, ready for publication.''',
    description="Transforms a structured content outline into a complete, well-written article.",
@@ -44,7 +46,7 @@ writer_agent = LlmAgent(
 )
 
 multimedia_producer_agent = LlmAgent(
-    model="gemini-2.5-flash",
+    model=DEFAULT_LLM_MODEL,
     name="multimedia_producer_agent",
     instruction='''You are a multimedia producer. Your primary task is to create a rich, synchronized visual and auditory experience based on the provided article.
 
@@ -55,13 +57,14 @@ multimedia_producer_agent = LlmAgent(
         a.  **Generate Image:** Create a unique, highly descriptive prompt that captures the essence of the section's text and use it to generate a visually compelling image.
         b.  **Move Image:** Use `move_artifact_to_session_folder` to move the generated image to the 'image' subfolder, using the 'image_path' from the previous step's output.
         c.  **Save Image Prompt:** Use `save_text_artifact` to save the image prompt to the 'text' subfolder.
-        d.  **Generate Audio:** Synthesize a voiceover for the text of that section only.
-        e.  **Move Audio:** Use `move_artifact_to_session_folder` to move the generated audio to the 'audio' subfolder, using the 'audio_path' from the previous step's output.
-        f.  **Save Transcript:** Use `save_text_artifact` to save the transcript to the 'text' subfolder.
-        g.  **Generate Social Media Post:** Generate a social media post (title, description, hashtags) from the text of the section.
-        h.  **Save Social Media Post:** Use `save_text_artifact` to save the social media post to the 'text' subfolder.
-        i.  **Create Short Video:** Create a short video from the generated image and audio.
-        j.  **Move Video:** Use `move_artifact_to_session_folder` to move the generated video to the 'video' subfolder, using the 'video_path' from the previous step's output.
+        d.  **Translate Text (if necessary):** If the `APP_LANG` environment variable is set to 'pt', use the `translate_text` tool to translate the section's text to Portuguese.
+        e.  **Generate Audio:** Synthesize a voiceover for the (potentially translated) text of that section only.
+        f.  **Move Audio:** Use `move_artifact_to_session_folder` to move the generated audio to the 'audio' subfolder, using the 'audio_path' from the previous step's output.
+        g.  **Save Transcript:** Use `save_text_artifact` to save the transcript to the 'text' subfolder.
+        h.  **Generate Social Media Post:** Generate a social media post (title, description, hashtags) from the text of the section.
+        i.  **Save Social Media Post:** Use `save_text_artifact` to save the social media post to the 'text' subfolder.
+        j.  **Create Short Video:** Create a short video from the generated image and audio.
+        k.  **Move Video:** Use `move_artifact_to_session_folder` to move the generated video to the 'video' subfolder, using the 'video_path' from the previous step's output.
     4.  **Finalize:** After processing all sections, collect all the generated asset paths and metadata into a single JSON object and use `save_session_to_firestore` to save it.
     
     Only use the provided tools for these tasks. Your final output must be a structured collection of all the generated multimedia assets.''',
@@ -76,11 +79,12 @@ multimedia_producer_agent = LlmAgent(
         save_text_artifact,
         move_artifact_to_session_folder,
         save_session_to_firestore,
+        translate_text,
     ]
 )
 
 video_producer_agent = LlmAgent(
-    model="gemini-2.5-flash",
+    model=DEFAULT_LLM_MODEL,
     name="video_producer_agent",
     instruction='''You are a video producer. Your task is to take the structured multimedia assets from the session state, which include lists of image paths and corresponding audio paths, and create a single, synchronized video.
     You must parse the 'multimedia_assets' key from the session state to get the lists of image and audio paths.
@@ -92,3 +96,10 @@ video_producer_agent = LlmAgent(
 )
 
 # Reporting agent is now in reporting.py
+
+from .custom import ThoughtfulAgent
+
+thoughtful_planning_agent = ThoughtfulAgent(planning_agent)
+thoughtful_writer_agent = ThoughtfulAgent(writer_agent)
+thoughtful_multimedia_producer_agent = ThoughtfulAgent(multimedia_producer_agent)
+thoughtful_video_producer_agent = ThoughtfulAgent(video_producer_agent)

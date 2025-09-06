@@ -85,9 +85,9 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p>Our flagship application that empowers creators and marketers to generate high-quality, engaging video content. By leveraging generative AI, Cocreator streamlines the entire creative workflow, from ideation to final production.</p>
-                  <Button asChild variant="outline">
+                  <Button asChild>
                     <Link href="/cocreator">
-                      Coming Soon <ArrowRight className="ml-2 h-4 w-4" />
+                      Launch Studio <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </CardContent>

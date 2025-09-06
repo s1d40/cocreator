@@ -22,6 +22,7 @@ dependencies = [
     "google-cloud-texttospeech",
     "firebase_admin",
     "python-dotenv",
+    "google-cloud-translate~=3.13.0",
 ]
 
 requires-python = ">=3.10,<3.14"

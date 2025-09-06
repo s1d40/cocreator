@@ -1,43 +1,39 @@
-# Copyright 2025 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-import logging
-from google.adk.agents import SequentialAgent
+from google.adk.agents import BaseAgent, LlmAgent
 from google.adk.agents.invocation_context import InvocationContext
-from google.adk.events import Event
-from app.utils.typing import Progress
-from google.genai.types import Content, Part
+from google.adk.events import Event, EventActions
+from typing import AsyncGenerator
 
-logger = logging.getLogger(__name__)
+class ThoughtfulAgent(BaseAgent):
+    def __init__(self, agent: LlmAgent):
+        super().__init__(name=f"thoughtful_{agent.name}")
+        self._agent = agent
 
-class LoggingSequentialAgent(SequentialAgent):
-    async def run_async(self, context: InvocationContext):
-        total_steps = len(self.sub_agents)
-        for i, agent in enumerate(self.sub_agents):
-            logger.info(f"Starting agent: {agent.name}")
-            progress = Progress(
-                current_step=i + 1,
-                total_steps=total_steps,
-                message=f"Starting agent: {agent.name}",
-            )
-            yield Event(author=self.name, content=Content(parts=[Part(text=progress.model_dump_json())]))
-            async for event in agent.run_async(context):
+    async def _run_async_impl(self, ctx: InvocationContext) -> AsyncGenerator[Event, None]:
+        async for event in self._agent.run_async(ctx):
+            if event.content and event.content.parts and event.content.parts[0].thought:
+                thought_text = event.content.parts[0].text
+                thought_type = self._get_thought_type(thought_text)
+                thought = {
+                    "type": thought_type,
+                    "message": thought_text,
+                }
+                yield Event(
+                    author=self.name,
+                    actions=EventActions(
+                        custom_metadata={"thought": thought}
+                    )
+                )
+            else:
                 yield event
-            logger.info(f"Finished agent: {agent.name}")
-            progress = Progress(
-                current_step=i + 1,
-                total_steps=total_steps,
-                message=f"Finished agent: {agent.name}",
-            )
-            yield Event(author=self.name, content=Content(parts=[Part(text=progress.model_dump_json())]))
+
+    def _get_thought_type(self, thought_text: str) -> str:
+        lower_thought = thought_text.lower()
+        if 'search' in lower_thought or 'browsing' in lower_thought:
+            return 'search'
+        if 'writing' in lower_thought or 'generating' in lower_thought or 'creating' in lower_thought:
+            return 'writing'
+        if 'generate_image' in lower_thought:
+            return 'generating_image'
+        if 'analyzing' in lower_thought or 'reading' in lower_thought or 'extracting' in lower_thought:
+            return 'analyzing'
+        return 'unknown'

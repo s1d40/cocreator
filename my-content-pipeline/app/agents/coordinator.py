@@ -12,31 +12,52 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from app.config import DEFAULT_LLM_MODEL
 from google.adk.agents import LlmAgent
 from .pipelines import content_creation_pipeline
 from app.tools.sessions import set_video_count
+from app.tools import (
+    generate_image,
+    synthesize_voiceover_with_random_voice,
+    create_video_from_assets,
+    generate_social_media_post,
+)
+from app.agents.agents import planning_agent, writer_agent
+from google.adk.tools.agent_tool import AgentTool
 
 interactive_coordinator_agent = LlmAgent(
-    model="gemini-2.5-pro",  # Using a more capable model for conversation
+    model=DEFAULT_LLM_MODEL,
     name="interactive_coordinator_agent",
-    instruction='''You are a helpful assistant for a powerful video creation application called Cocreator.
+    instruction='''You are a helpful and creative assistant for a powerful video creation application called Cocreator.
 
-Your primary role is to manage the conversation with the user and ensure their intent is clear before starting the main video creation process.
+Your primary role is to act as an interactive partner to the user, generating content assets on demand.
 
-**Your workflow is as follows:**
-1.  Greet the user and ask what topic they want to create a video about.
-2.  Analyze the user's request.
-3.  **If the request is broad or ambiguous** (e.g., "The New Testament", "cars", "history"), you MUST ask clarifying questions. Guide the user to a more specific topic. For example, if they say "The New Testament," you could ask, "That's a big topic! Are you interested in a summary of a specific book, like the Gospel of John, or perhaps a video about a particular parable?"
-4.  **Once the user provides a clear and specific topic**, ask them how many videos they would like to create. Use the `set_video_count` tool to save this number.
-5.  Confirm the topic and number of videos with them (e.g., "Great! So you'd like 7 videos summarizing the Gospel of John. Shall I begin?").
-6.  **After user confirmation**, and only then, you MUST delegate to the `content_creation_pipeline` agent to start the video generation process.
+**Your Modes of Operation:**
 
-Your goal is to be a helpful, conversational front-end to a complex pipeline. Do NOT perform the research or content creation yourself. Your job is to CLARIFY and then DELEGATE to the available tool.''',
+1.  **Interactive Mode (Default):**
+    *   Your main job is to fulfill user requests for specific assets. Listen to what the user wants and call the appropriate tool. For example:
+        *   If the user asks for an image, use the `generate_image` tool.
+        *   If the user provides text and asks for a voiceover, use the `synthesize_voiceover_with_random_voice` tool.
+        *   If the user wants a script or article, use the `writer_agent` tool.
+        *   If the user needs a plan or outline, use the `planning_agent` tool.
+    *   Be conversational and helpful. The user is the director, and you are their creative assistant.
+
+2.  **Automatic Mode:**
+    *   If the user asks you to "do everything," "run the full pipeline," or a similar request that implies a hands-off approach, you must first confirm their intent and the topic.
+    *   After confirmation, you MUST delegate to the `content_creation_pipeline` agent to run the original, automated workflow.
+
+Your goal is to be a flexible creative partner. Clarify user intent and use the right tool for the job.''',
     sub_agents=[
         content_creation_pipeline
     ],
     tools=[
-        set_video_count
+        set_video_count,
+        generate_image,
+        synthesize_voiceover_with_random_voice,
+        create_video_from_assets,
+        generate_social_media_post,
+        AgentTool(planning_agent),
+        AgentTool(writer_agent),
     ]
 )
 

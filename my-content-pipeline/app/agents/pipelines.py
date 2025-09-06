@@ -12,21 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .custom import LoggingSequentialAgent
+from google.adk.agents import SequentialAgent
 from .agents import (
-    planning_agent,
-    writer_agent,
-    multimedia_producer_agent,
+    thoughtful_planning_agent,
+    thoughtful_writer_agent,
+    thoughtful_multimedia_producer_agent,
 )
 from .reporting import reporting_agent
 
-content_creation_pipeline = LoggingSequentialAgent(
+content_creation_pipeline = SequentialAgent(
    name="content_creation_pipeline",
    description="A full pipeline that takes a topic, researches it, and generates a complete video with a script, images, and voiceover. Use this tool when a user has confirmed a clear and specific request.",
    sub_agents=[
-       planning_agent,
-       writer_agent,
-       multimedia_producer_agent,
+       thoughtful_planning_agent,
+       thoughtful_writer_agent,
+       thoughtful_multimedia_producer_agent,
        reporting_agent,
    ]
 )
